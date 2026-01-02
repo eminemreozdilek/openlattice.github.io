@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="dark light"/>
+    <title>About · OpenLattice</title>
+    <meta name="description" content="About OpenLattice: TPMS generation, homogenization, and HMTO."/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="assets/styles.css"/>
+    <script defer src="assets/site.js"></script>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="site-header" data-active="about">
+    <div class="wrap header-inner">
+        <a class="brand" href="index.html" aria-label="OpenLattice home">
+            <img class="logo" src="images/logo.png" alt="OpenLattice logo" data-fallback="mark">
+        </a>
+
+        <nav class="nav" aria-label="Primary navigation">
+            <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+                <span class="sr-only">Toggle menu</span>
+                <span class="burger" aria-hidden="true"></span>
+            </button>
+
+            <div id="nav-links" class="nav-links">
+                <a class="nav-link" data-key="home" href="index.html">Home</a>
+                <a class="nav-link" data-key="about" href="about.html">About</a>
+                <a class="nav-link" data-key="tutorials" href="tutorials.html">Tutorials</a>
+                <a class="nav-link" data-key="articles" href="releated_articles.html">Related Articles</a>
+                <a class="nav-link" data-key="team" href="the_team.html">The Team</a>
+                <a class="nav-link" data-key="versions" href="versions.html">Versions</a>
+            </div>
+
+            <button class="mode" type="button" aria-label="Toggle theme">
+                <span class="mode-icon" aria-hidden="true">◐</span>
+            </button>
+
+            <a class="btn btn-primary btn-small"
+               href="https://drive.google.com/drive/folders/1gREuPsOYKE9VTF8F9dK5JFAYSdkSBlb2?usp=sharing"
+               target="_blank" rel="noreferrer">
+                Download
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main id="content">
+
+    <section class="page-hero">
+        <div class="wrap">
+            <h1>About</h1>
+            <p class="muted"></p>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="wrap">
+            <div class="section-head">
+                <h2>About OpenLattice</h2>
+                <p class="muted">OpenLattice, a user-friendly software package that streamlines lattice generation,
+                    homogenization, and topology optimization. OpenLattice facilitates the design of TPMS, strut-based,
+                    and auxetic lattices, capabilities that are rarely available in existing software, and integrates
+                    homogenization-based topology optimization (HMTO) to reduce computational effort and enhance
+                    precision compared to conventional approaches reported in the literature. The package provides four
+                    core functionalities: (1) lattice generation, (2) homogenization, (3) homogenization-based topology
+                    optimization (HMTO), and (4) reconstruction of functionally graded lattices for validation and
+                    manufacturing purposes. Researchers can leverage HMTO results to create functionally graded lattices
+                    beyond the capabilities of current tools, enabling tailored mechanical performance that is often
+                    unattainable with previously reported software.</p>
+            </div>
+
+            <div class="grid grid-3">
+                <div class="feature">
+                    <h3>Lattice Generation</h3>
+                    <p class="muted">OpenLattice enables the generation of three distinct classes of lattices: TPMS,
+                        strut-based, and auxetic lattices. In this chapter, a common TPMS modeling approach is
+                        summarized, while a newly developed method for creating strut-based and auxetic lattices is
+                        presented.</p>
+                </div>
+                <div class="feature">
+                    <h3>Homogenization</h3>
+                    <p class="muted">The homogenization method enables to simplify explicit lattice geometries into
+                        implicit bulk geometries with effective material properties. This approach reduces the
+                        computational cost of modelling explicit lattice geometries which require a large number of mesh
+                        elements.</p>
+                </div>
+                <div class="feature">
+                    <h3>Optimization (HMTO)</h3>
+                    <p class="muted">OpenLattice can also perform HMTO to enable functionally graded lattice structures
+                        (FGLs) to take full advantage of lattice structures by enhancing their mechanical performance.
+                        OpenLattice utilizes unit cell homogenization to determine the scaling law of corresponding
+                        cellular structures. Each term of the elastic constant for CH can be expressed as a polynomial
+                        function of the relative density of cellular structures.</p>
+                </div>
+            </div>
+
+            <div class="callout">
+                <div>
+                    <h3>Collaboration-friendly</h3>
+                    <p class="muted">The team is open to sharing the source codes with other researchers or research
+                        groups for collaboration purposes. This openness fosters collaboration, allowing for continuous
+                        improvement and adaptation of the software to meet the evolving needs of the academic and
+                        research communities.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div class="footer-block">
+            <div class="brand footer-brand">
+                <img class="logo" src="images/logo.png" alt="OpenLattice logo" data-fallback="mark">
+            </div>
+            <p class="muted">A lattice design, homogenization, and optimization application.</p>
+            <div class="pill-row">
+                <span class="pill">TPMS</span>
+                <span class="pill">Homogenization</span>
+                <span class="pill">HMTO</span>
+            </div>
+        </div>
+
+        <div class="footer-block">
+            <h3>News</h3>
+            <ul class="list">
+                <li><span class="dot"></span> v1.0.0 is Released!</li>
+            </ul>
+        </div>
+
+        <div class="footer-block">
+            <h3>Corresponding Author</h3>
+            <p class="muted"><strong>Dr. Simsek, Ugur</strong></p>
+            <ul class="list">
+                <li><span class="dot"></span> Ann Arbor, MI, USA</li>
+                <li><span class="dot"></span> <a
+                        href="mailto:ugur.simsek.16339@ozu.edu.tr">ugur.simsek.16339@ozu.edu.tr</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="wrap footer-bottom">
+        <p class="muted">© 2026 All Rights Reserved. OpenLattice.</p>
+        <div class="footer-actions">
+            <a class="muted" href="https://drive.google.com/drive/folders/1gREuPsOYKE9VTF8F9dK5JFAYSdkSBlb2?usp=sharing"
+               target="_blank" rel="noreferrer">Download</a>
+            <span class="muted">·</span>
+            <a class="muted" href="releated_articles.html">Publications</a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
