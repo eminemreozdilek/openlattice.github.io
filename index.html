@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width,initial-scale=1" name="viewport"/>
+    <meta content="dark light" name="color-scheme"/>
+    <title>OpenLattice</title>
+    <meta content="OpenLattice – TPMS lattice design, homogenization, and optimization." name="description"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="assets/styles.css" rel="stylesheet"/>
+    <script defer="" src="assets/site.js"></script>
+
+    <style>
+        /* One-page sections (SPA-style) */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        .spa-section {
+            scroll-margin-top: 96px;
+            border-top: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .spa-toggle {
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            border: 0;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .spa-toggle:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, .35);
+            outline-offset: 6px;
+            border-radius: 14px;
+        }
+
+        .spa-toggle-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 1.2rem 0;
+        }
+
+        .spa-toggle h2 {
+            margin: 0;
+        }
+
+        .spa-toggle .muted {
+            margin: .25rem 0 0 0;
+        }
+
+        .spa-arrow {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            transition: transform .25s ease, background-color .25s ease;
+        }
+
+        .spa-section.is-open .spa-arrow {
+            transform: rotate(180deg);
+            background: rgba(255, 255, 255, .06);
+        }
+
+        .spa-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: max-height .55s ease, opacity .35s ease, transform .35s ease;
+        }
+
+        .spa-section.is-open .spa-content {
+            max-height: 8000px;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spa-content, .spa-arrow {
+                transition: none;
+            }
+        }
+
+        /* Tame inner page-hero blocks when embedded */
+        .spa-content .page-hero {
+            padding-top: 1.8rem;
+            padding-bottom: 1.4rem;
+        }
+
+        /* ==========================================================
+           ALWAYS EXPANDED SECTIONS (NO MORE OPEN/CLOSE ACCORDIONS)
+           ========================================================== */
+        .spa-toggle {
+            display: none !important;
+        }
+
+        .spa-content {
+            max-height: none !important;
+            overflow: visible !important;
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
+        }
+
+        /* ==========================================================
+           ARTICLES PAGER (2-item carousel in default mode)
+           ========================================================== */
+        #articlePager {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            margin-left: auto;
+        }
+
+        #articlePagerInfo {
+            min-width: 96px;
+            text-align: center;
+        }
+
+        /* ==========================================================
+           SECTION-RESET GRADIENT BACKGROUND
+           - Takes the gradient/background you set on <html>/<body>
+           - Restarts it per top-level section (hero + each spa-section + footer)
+           - Prevents "restarting" inside a long section
+           ========================================================== */
+        .hero, .spa-section, .site-footer {
+            position: relative;
+            isolation: isolate;
+        }
+
+        .hero::before,
+        .spa-section::before,
+        .site-footer::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+
+            background-color: var(--ol-section-bg-color, transparent);
+            background-image: var(--ol-section-bg-image, none);
+
+            /* keep your gradient consistent inside the section */
+            background-repeat: var(--ol-section-bg-repeat, no-repeat);
+            background-size: var(--ol-section-bg-size, 100% 100%);
+            background-position: var(--ol-section-bg-position, top center);
+            background-attachment: scroll;
+
+            /* if you animate the gradient on body/html, git preserves it */
+            animation-name: var(--ol-section-bg-anim-name, none);
+            animation-duration: var(--ol-section-bg-anim-duration, 0s);
+            animation-timing-function: var(--ol-section-bg-anim-timing, linear);
+            animation-iteration-count: var(--ol-section-bg-anim-iter, 1);
+            animation-direction: var(--ol-section-bg-anim-dir, normal);
+            animation-fill-mode: var(--ol-section-bg-anim-fill, both);
+        }
+
+    </style>
+</head>
+
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="site-header" data-active="home">
+    <div class="wrap header-inner">
+        <a aria-label="OpenLattice home" class="brand" href="#home">
+            <img alt="OpenLattice logo" class="logo" data-fallback="mark" src="images/logo.png"/>
+        </a>
+
+        <nav aria-label="Primary navigation" class="nav">
+            <button aria-controls="nav-links" aria-expanded="false" class="nav-toggle" type="button">
+                <span class="sr-only">Toggle menu</span>
+                <span aria-hidden="true" class="burger"></span>
+            </button>
+
+            <div class="nav-links" id="nav-links">
+                <a class="nav-link" data-key="home" href="#home">Home</a>
+                <a class="nav-link" data-key="about" href="#about">About</a>
+                <a class="nav-link" data-key="tutorials" href="#tutorials">Tutorials</a>
+                <a class="nav-link" data-key="articles" href="#articles">Related Articles</a>
+                <a class="nav-link" data-key="team" href="#team">The Team</a>
+                <a class="nav-link" data-key="versions" href="#versions">Versions</a>
+            </div>
+
+            <button aria-label="Toggle theme" class="mode" type="button">
+                <span aria-hidden="true" class="mode-icon">◐</span>
+            </button>
+
+            <a class="btn btn-primary btn-small"
+               href="https://drive.google.com/drive/folders/1gREuPsOYKE9VTF8F9dK5JFAYSdkSBlb2?usp=sharing"
+               rel="noreferrer" target="_blank">
+                Download
+            </a>
+        </nav>
+    </div>
+</header>
+
+<main id="content">
+    <section class="hero" data-spa-home="true" id="home">
+        <div class="wrap hero-grid">
+            <div class="hero-copy">
+                <p class="kicker">TPMS lattices · Strut-Base Lattices · Auxetics</p>
+                <h1>OpenLattice</h1>
+                <p class="lead">A lattice design, homogenization, and topology optimization software.</p>
+                <div class="pill-row">
+                    <span class="pill">Lattice Generation</span>
+                    <span class="pill">Anisotropic Homogenization</span>
+                    <span class="pill">Topology Optimization</span>
+                </div>
+            </div>
+
+            <div class="hero-panel">
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="badge">Latest</span>
+                        <span class="muted tiny">v1.0.0 is Released!</span>
+                    </div>
+                    <p class="muted">Download the latest build and explore the tutorials and publications for the core
+                        workflow.</p>
+                    <div class="panel-actions">
+                        <a class="btn btn-secondary btn-small" href="#versions">See versions</a>
+                        <a class="btn btn-ghost btn-small" href="#articles">Related Publications</a>
+                    </div>
+                </div>
+
+                <div class="panel subtle">
+                    <div class="panel-header">
+                        <span class="badge">Contact</span>
+                        <span class="muted tiny">Corresponding author</span>
+                    </div>
+                    <p class="muted"><strong>Dr. Simsek, Ugur</strong><br/>Ozyegin University, Cekmekoy Campus Nisantepe
+                        Mah. Orman Sok. No: 34794 Cekmekoy, Istanbul TR<br/>
+                        <a href="mailto:ugur.simsek.16339@ozu.edu.tr">ugur.simsek.16339@ozu.edu.tr</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div aria-hidden="true" class="bg-shape"></div>
+    </section>
+
+    <!-- ABOUT (always open) -->
+    <section class="spa-section" id="about">
+        <div class="wrap">
+            <button aria-controls="panel-about" aria-expanded="true" class="spa-toggle" data-spa-toggle="about"
+                    type="button">
+                <div class="spa-toggle-inner">
+                    <div><h2>About</h2>
+                        <p class="muted">About OpenLattice: TPMS generation, homogenization, and HMTO.</p></div>
+                    <span aria-hidden="true" class="spa-arrow">⌄</span>
+                </div>
+            </button>
+        </div>
+
+        <div aria-label="About" class="spa-content" id="panel-about" role="region">
+            <section class="section">
+                <div class="wrap">
+                    <div class="section-head">
+                        <h2>About OpenLattice</h2>
+                        <p class="muted">
+                            OpenLattice, a user-friendly software package that streamlines lattice generation,
+                            homogenization, and topology optimization. OpenLattice facilitates the design of TPMS,
+                            strut-based, and auxetic lattices, capabilities that are rarely available in existing
+                            software, and integrates homogenization-based topology optimization (HMTO) to reduce
+                            computational effort and enhance precision compared to conventional approaches reported
+                            in the literature. The package provides four core functionalities: (1) lattice generation,
+                            (2) homogenization, (3) homogenization-based topology optimization (HMTO), and (4)
+                            reconstruction of functionally graded lattices for validation and manufacturing purposes.
+                            Researchers can leverage HMTO results to create functionally graded lattices beyond the
+                            capabilities of current tools, enabling tailored mechanical performance that is often
+                            unattainable with previously reported software.
+                        </p>
+                        <h3>Lattice Generation</h3>
+                        <p class="muted">
+                            OpenLattice enables the generation of three distinct classes of lattices: TPMS,
+                            strut-based, and auxetic lattices. In this chapter, a common TPMS modeling approach is
+                            summarized, while a newly developed method for creating strut-based and auxetic lattices
+                            is presented.
+                        </p>
+                        <h3>Homogenization</h3>
+                        <p class="muted">
+                            The homogenization method enables to simplify explicit lattice geometries into implicit
+                            bulk
+                            geometries with effective material properties. This approach reduces the computational
+                            cost
+                            of modelling explicit lattice geometries which require a large number of mesh elements.
+                        </p>
+                        <h3>Optimization (HMTO)</h3>
+                        <p class="muted">
+                            OpenLattice can also perform HMTO to enable functionally graded lattice structures
+                            (FGLs)
+                            to take full advantage of lattice structures by enhancing their mechanical performance.
+                            OpenLattice utilizes unit cell homogenization to determine the scaling law of
+                            corresponding
+                            cellular structures. Each term of the elastic constant for CH can be expressed as a
+                            polynomial
+                            function of the relative density of cellular structures.
+                        </p>
+                        <h3>Collaboration-friendly</h3>
+                        <p class="muted">
+                            The team is open to sharing the source codes with other researchers or research groups
+                            for
+                            collaboration purposes. This openness fosters collaboration, allowing for continuous
+                            improvement
+                            and adaptation of the software to meet the evolving needs of the academic and research
+                            communities.
+                        </p>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- TUTORIALS (always open) -->
+    <section class="spa-section" id="tutorials">
+        <div class="wrap">
+            <button aria-controls="panel-tutorials" aria-expanded="true" class="spa-toggle" data-spa-toggle="tutorials"
+                    type="button">
+                <div class="spa-toggle-inner">
+                    <div><h2>Tutorials</h2>
+                        <p class="muted">OpenLattice tutorials and video guides.</p></div>
+                    <span aria-hidden="true" class="spa-arrow">⌄</span>
+                </div>
+            </button>
+        </div>
+
+        <div aria-label="Tutorials" class="spa-content" id="panel-tutorials" role="region">
+            <section class="section">
+                <div class="wrap">
+                    <div class="grid grid-3">
+
+                        <article class="card">
+                            <a class="card-media"
+                               href="https://drive.google.com/file/d/1IDa3PF3_bgasj7RV96zUw2UwHaKQkHKO/view?usp=drive_link"
+                               target="_blank" rel="noreferrer">
+                                <img src="images/tutorials/Tutorial-1-demo.png" alt="Introduction thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Overview</span>
+                                    <a class="muted tiny"
+                                       href="https://drive.google.com/file/d/1IDa3PF3_bgasj7RV96zUw2UwHaKQkHKO/view?usp=drive_link"
+                                       target="_blank" rel="noreferrer">Open video →</a>
+                                </div>
+                                <h3 class="card-title">Introduction</h3>
+                                <p class="muted">
+                                    OpenLattice is a software package with a user-friendly interface that simplifies the
+                                    design of optimized
+                                    lattice structures. It offers 3 main modules: lattice generation, homogenization,
+                                    and topology optimization.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <a class="card-media"
+                               href="https://drive.google.com/file/d/1Srn9Q59AmMG2nuT-NOQtyXHhm6HNbdxq/view?usp=drive_link"
+                               target="_blank" rel="noreferrer">
+                                <img src="images/tutorials/Tutorial-2-latticegenerationntpms.png"
+                                     alt="TPMS Lattice Generation thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Generation</span>
+                                    <a class="muted tiny"
+                                       href="https://drive.google.com/file/d/1Srn9Q59AmMG2nuT-NOQtyXHhm6HNbdxq/view?usp=drive_link"
+                                       target="_blank" rel="noreferrer">Open video →</a>
+                                </div>
+                                <h3 class="card-title">TPMS Lattice Generation</h3>
+                                <p class="muted">
+                                    Guide to step-by-step through the process of generating very first TPMS lattices
+                                    within OpenLattice.
+                                    In the video, it describes the design parameters, visual settings, and possible
+                                    input-output files.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <a class="card-media"
+                               href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                               target="_blank" rel="noreferrer">
+                                <img src="images/tutorials/Tutorial-3-latticegenerationstrutbased.png"
+                                     alt="Homogenization thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Homogenization</span>
+                                    <a class="muted tiny"
+                                       href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                                       target="_blank" rel="noreferrer">Open video →</a>
+                                </div>
+                                <h3 class="card-title">Homogenization</h3>
+                                <p class="muted">
+                                    Guide to custom lattices within OpenLattice. In the video, it describes the design
+                                    parameters,
+                                    visual settings, and possible input-output files.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <a class="card-media"
+                               href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                               target="_blank" rel="noreferrer">
+                                <img src="images/tutorials/Tutorial-4-homogenization.png"
+                                     alt="Homogenization thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Elastic Homogenization</span>
+                                    <span class="badge">Thermal Homogenization</span>
+                                    <a class="muted tiny"
+                                       href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                                       target="_blank" rel="noreferrer">Open video →</a>
+                                </div>
+                                <h3 class="card-title">Homogenization</h3>
+                                <p class="muted">A guide to use homogenization module for lattices.</p>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <a class="card-media"
+                               href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                               target="_blank" rel="noreferrer">
+                                <img src="images/tutorials/Tutorial-5-topologyoptimizationandreconstruction.png"
+                                     alt="Homogenization thumbnail">
+                            </a>
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">TO</span>
+                                    <span class="badge">Reconstruction</span>
+                                    <a class="muted tiny"
+                                       href="https://drive.google.com/file/d/1-3_PxZrdZ8cCVgVgAwj5nIq9VIFNqQeg/view?usp=drive_link"
+                                       target="_blank" rel="noreferrer">Open video →</a>
+                                </div>
+                                <h3 class="card-title">Topology Optimization and Reconstruction</h3>
+                                <p class="muted">
+                                    A guide to use topology optimization module and generating functional graded
+                                    lattices.
+                                </p>
+                            </div>
+                        </article>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- ARTICLES (special behavior: default 2 items + arrows, filters show all) -->
+    <section class="spa-section" id="articles">
+        <div class="wrap">
+            <button aria-controls="panel-articles" aria-expanded="true" class="spa-toggle" data-spa-toggle="articles"
+                    type="button">
+                <div class="spa-toggle-inner">
+                    <div><h2>Related Articles</h2>
+                        <p class="muted">Publications related to OpenLattice and TPMS lattice structures.</p></div>
+                    <span aria-hidden="true" class="spa-arrow">⌄</span>
+                </div>
+            </button>
+        </div>
+
+        <div aria-label="Related Articles" class="spa-content" id="panel-articles" role="region">
+            <section class="section">
+                <div class="wrap">
+                    <div class="toolbar">
+                        <label class="search">
+                            <span class="sr-only">Search articles</span>
+                            <input autocomplete="off" id="articleSearch" placeholder="Search by title, author, year…"
+                                   type="search"/>
+                        </label>
+
+                        <div class="filters">
+                            <!-- NOTE: no default active chip -->
+                            <button class="chip" data-year="all" type="button">All</button>
+                            <button class="chip" data-year="2024" type="button">2024</button>
+                            <button class="chip" data-year="2023" type="button">2023</button>
+                            <button class="chip" data-year="2022" type="button">2022</button>
+                            <button class="chip" data-year="2021" type="button">2021</button>
+                            <button class="chip" data-year="2020" type="button">2020</button>
+                        </div>
+
+                        <!-- Pager controls for default (2-item) mode -->
+                        <div class="pager" id="articlePager" aria-label="Article carousel controls">
+                            <button class="btn btn-ghost btn-small" id="articlePrev" type="button"
+                                    aria-label="Previous articles">←
+                            </button>
+                            <span class="muted tiny" id="articlePagerInfo"></span>
+                            <button class="btn btn-ghost btn-small" id="articleNext" type="button"
+                                    aria-label="Next articles">→
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-3" id="articleGrid">
+
+                        <div class="filter-item"
+                             data-text="a finite element based homogenization code in python: hompy ozdilek, e. e., ozcakar, e., muhtaroglu, n., simsek, u., gulcan, o., &amp; sendur, g. k. (2024) 2024"
+                             data-year="2024">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://www.sciencedirect.com/science/article/pii/S0965997824000814?casa_token=uAC5aIOU7xwAAAAA:VZswxsVjhp6vDMMdfpNf7w16MmiKs6f5b2-D-LODDngvNSDVevD6GNSnXk2ChhEEF_fs3W6WPISG"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="A finite element based homogenization code in python: HomPy cover"
+                                         src="images/article_pictures/hompy.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2024</span>
+                                        <span class="muted tiny">ScienceDirect</span>
+                                    </div>
+                                    <h3 class="card-title">A finite element based homogenization code in python:
+                                        HomPy</h3>
+                                    <p class="muted tiny">Ozdilek, E. E., Ozcakar, E., Muhtaroglu, N., Simsek, U.,
+                                        Gulcan, O., &amp; Sendur, G. K. (2024)</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://www.sciencedirect.com/science/article/pii/S0965997824000814?casa_token=uAC5aIOU7xwAAAAA:VZswxsVjhp6vDMMdfpNf7w16MmiKs6f5b2-D-LODDngvNSDVevD6GNSnXk2ChhEEF_fs3W6WPISG"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="enhancement of damping characteristics through hybridization: investigating the synergistic effects of triply periodic minimal surface additive metals and silicone polymers ozden, m. c., simsek, u., ozdemir, m., gayir, c. e., &amp; sendur, p. (2024). 2024"
+                             data-year="2024">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://onlinelibrary.wiley.com/doi/full/10.1002/adem.202302181"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="Enhancement of Damping Characteristics through Hybridization cover"
+                                         src="images/article_pictures/enhancement.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2024</span>
+                                        <span class="muted tiny">Wiley</span>
+                                    </div>
+                                    <h3 class="card-title">Enhancement of Damping Characteristics through Hybridization:
+                                        Investigating the Synergistic Effects of Triply Periodic Minimal Surface
+                                        Additive Metals and Silicone Polymers</h3>
+                                    <p class="muted tiny">Ozden, M. C., Simsek, U., Ozdemir, M., Gayir, C. E., &amp;
+                                        Sendur, P. (2024).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://onlinelibrary.wiley.com/doi/full/10.1002/adem.202302181"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="a numerical investigation about shrink line formation in tpms lattice structures during lpbf process gülcan, o., günaydın, k., &amp; simsek, u. (2024). 2024"
+                             data-year="2024">
+                            <article class="card card-article">
+                                <a class="card-media" href="https://dergipark.org.tr/en/pub/matim/issue/84853/1370140"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="A Numerical Investigation About Shrink Line Formation cover"
+                                         src="images/article_pictures/a_numerical_investigation.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2024</span>
+                                        <span class="muted tiny">DergiPark</span>
+                                    </div>
+                                    <h3 class="card-title">A Numerical Investigation About Shrink Line Formation in TPMS
+                                        Lattice Structures During LPBF Process</h3>
+                                    <p class="muted tiny">Gülcan, O., Günaydın, K., &amp; Simsek, U. (2024).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://dergipark.org.tr/en/pub/matim/issue/84853/1370140"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="prediction of compressive behavior of laser-powder-bed fusion-processed tpms lattices by regression analysis şimşek, u., gülcan, o., günaydın, k., &amp; tamer, a. (2024). 2024"
+                             data-year="2024">
+                            <article class="card card-article">
+                                <a class="card-media" href="https://www.mdpi.com/2504-4494/8/1/16" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="Prediction of Compressive Behavior cover"
+                                         src="images/article_pictures/prediction_of_compressive.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2024</span>
+                                        <span class="muted tiny">MDPI</span>
+                                    </div>
+                                    <h3 class="card-title">Prediction of Compressive Behavior of Laser-Powder-Bed
+                                        Fusion-Processed TPMS Lattices by Regression Analysis</h3>
+                                    <p class="muted tiny">Şimşek, U., Gülcan, O., Günaydın, K., &amp; Tamer, A.
+                                        (2024).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://www.mdpi.com/2504-4494/8/1/16"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="a new sensitivity-based mapping scheme for topology optimization of graded tpms designs parlayan, o., ozdemir, m., gayir, c. e., simsek, u., &amp; kiziltas, g. (2023). 2023"
+                             data-year="2023">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://link.springer.com/article/10.1007/s00170-023-12439-1" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="A new sensitivity-based mapping scheme cover"
+                                         src="images/article_pictures/a_new_sensivity_based.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2023</span>
+                                        <span class="muted tiny">Springer</span>
+                                    </div>
+                                    <h3 class="card-title">A new sensitivity-based mapping scheme for topology
+                                        optimization of graded TPMS designs</h3>
+                                    <p class="muted tiny">Parlayan, O., Ozdemir, M., Gayir, C. E., Simsek, U., &amp;
+                                        Kiziltas, G. (2023).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://link.springer.com/article/10.1007/s00170-023-12439-1"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="a novel design framework for generating functionally graded multi-morphology lattices via hybrid optimzation and blending methods ozdemir, m., simsek, u., kiziltas, g., gayir, c. e., celik, a., &amp; sendur, p. (2023). 2023"
+                             data-year="2023">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://www.sciencedirect.com/science/article/pii/S2214860423001732?casa_token=ZQN9JOJRayQAAAAA:1yokn7Tv8HDAwabVUs7G2videVDY7zYK2bc27q-uFHZGhjf9j3ogUt3-gLWk4UAxM-8UJDslgvva"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="A Novel Design Framework cover"
+                                         src="images/article_pictures/a_novel_design_framework.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2023</span>
+                                        <span class="muted tiny">ScienceDirect</span>
+                                    </div>
+                                    <h3 class="card-title">A Novel Design Framework for Generating Functionally Graded
+                                        Multi-Morphology Lattices via Hybrid Optimzation and Blending Methods</h3>
+                                    <p class="muted tiny">Ozdemir, M., Simsek, U., Kiziltas, G., Gayir, C. E., Celik,
+                                        A., &amp; Sendur, P. (2023).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://www.sciencedirect.com/science/article/pii/S2214860423001732?casa_token=ZQN9JOJRayQAAAAA:1yokn7Tv8HDAwabVUs7G2videVDY7zYK2bc27q-uFHZGhjf9j3ogUt3-gLWk4UAxM-8UJDslgvva"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="experimental and numerical modal characterization for additively manufactured triply periodic minimal surface lattice structures: comparison between free‐size and homogenization‐based optimization methods ozdemir, m., simsek, u., kuser, e., gayir, c. e., celik, a., &amp; sendur, p. (2023). 2023"
+                             data-year="2023">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://onlinelibrary.wiley.com/doi/full/10.1002/adem.202201811"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="Experimental and Numerical Modal Characterization cover"
+                                         src="images/article_pictures/experimental_and_nodal.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2023</span>
+                                        <span class="muted tiny">Wiley</span>
+                                    </div>
+                                    <h3 class="card-title">Experimental and Numerical Modal Characterization for
+                                        Additively Manufactured Triply Periodic Minimal Surface Lattice Structures:
+                                        Comparison between Free‐Size and Homogenization‐Based Optimization Methods</h3>
+                                    <p class="muted tiny">Ozdemir, M., Simsek, U., Kuser, E., Gayir, C. E., Celik, A.,
+                                        &amp; Sendur, P. (2023).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://onlinelibrary.wiley.com/doi/full/10.1002/adem.202201811"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="effect of build parameters on the compressive behavior of additive manufactured cocrmo lattice parts based on experimental design gulcan, o., simsek, u., cokgunlu, o., ozdemir, m., şendur, p., &amp; yapici, g. g. (2022). 2022"
+                             data-year="2022">
+                            <article class="card card-article">
+                                <a class="card-media" href="https://www.mdpi.com/2075-4701/12/7/1104" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="Effect of Build Parameters cover"
+                                         src="images/article_pictures/effect_of_build_parameters.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2022</span>
+                                        <span class="muted tiny">MDPI</span>
+                                    </div>
+                                    <h3 class="card-title">Effect of Build Parameters on the Compressive Behavior of
+                                        Additive Manufactured CoCrMo Lattice Parts Based on Experimental Design</h3>
+                                    <p class="muted tiny">Gulcan, O., Simsek, U., Cokgunlu, O., Ozdemir, M., Şendur, P.,
+                                        &amp; Yapici, G. G. (2022).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://www.mdpi.com/2075-4701/12/7/1104"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="an efficient design methodology for graded surface-based lattice structures using free-size optimization and enhanced mapping method simsek, u., ozdemir, m., &amp; sendur, p. (2021). 2021"
+                             data-year="2021">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://www.sciencedirect.com/science/article/pii/S0264127521005943"
+                                   rel="noreferrer" target="_blank">
+                                    <img alt="An Efficient Design Methodology cover"
+                                         src="images/article_pictures/an_efficient_design_methodology.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2021</span>
+                                        <span class="muted tiny">ScienceDirect</span>
+                                    </div>
+                                    <h3 class="card-title">An Efficient Design Methodology for Graded Surface-based
+                                        Lattice Structures using Free-size Optimization and Enhanced Mapping Method</h3>
+                                    <p class="muted tiny">Simsek, U., Ozdemir, M., &amp; Sendur, P. (2021).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://www.sciencedirect.com/science/article/pii/S0264127521005943"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="parametric studies on vibration characteristics of triply periodic minimum surface sandwich lattice structures simsek, u., arslan, t., kavas, b., gayir, c. e., &amp; sendur, p. (2021). 2021"
+                             data-year="2021">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://link.springer.com/article/10.1007/s00170-020-06136-6" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="Parametric studies on vibration characteristics cover"
+                                         src="images/article_pictures/parametric.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2021</span>
+                                        <span class="muted tiny">Springer</span>
+                                    </div>
+                                    <h3 class="card-title">Parametric studies on vibration characteristics of triply
+                                        periodic minimum surface sandwich lattice structures</h3>
+                                    <p class="muted tiny">Simsek, U., Arslan, T., Kavas, B., Gayir, C. E., &amp; Sendur,
+                                        P. (2021).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://link.springer.com/article/10.1007/s00170-020-06136-6"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="modal characterization of additively manufactured tpms structures: comparison between different modeling methods simsek, u., akbulut, a., gayir, c. e., basaran, c., &amp; sendur, p. (2021). 2021"
+                             data-year="2021">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://link.springer.com/article/10.1007/s00170-020-06174-0" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="Modal characterization of additively manufactured TPMS structures cover"
+                                         src="images/article_pictures/modal.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2021</span>
+                                        <span class="muted tiny">Springer</span>
+                                    </div>
+                                    <h3 class="card-title">Modal characterization of additively manufactured TPMS
+                                        structures: comparison between different modeling methods</h3>
+                                    <p class="muted tiny">Simsek, U., Akbulut, A., Gayir, C. E., Basaran, C., &amp;
+                                        Sendur, P. (2021).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://link.springer.com/article/10.1007/s00170-020-06174-0"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                        <div class="filter-item"
+                             data-text="an integrated homogenization–based topology optimization via rbf mapping strategies for additively manufactured fgls and its application to bandgap structures simsek, u., gayir, c. e., kiziltas, g., &amp; sendur, p. (2020). 2020"
+                             data-year="2020">
+                            <article class="card card-article">
+                                <a class="card-media"
+                                   href="https://link.springer.com/article/10.1007/s00170-020-06207-8" rel="noreferrer"
+                                   target="_blank">
+                                    <img alt="An integrated homogenization–based topology optimization cover"
+                                         src="images/article_pictures/an_integrated.png"/>
+                                </a>
+                                <div class="card-body">
+                                    <div class="card-top">
+                                        <span class="badge">2020</span>
+                                        <span class="muted tiny">Springer</span>
+                                    </div>
+                                    <h3 class="card-title">An integrated homogenization–based topology optimization via
+                                        RBF mapping strategies for additively manufactured FGLS and its application to
+                                        bandgap structures</h3>
+                                    <p class="muted tiny">Simsek, U., Gayir, C. E., Kiziltas, G., &amp; Sendur, P.
+                                        (2020).</p>
+                                    <div class="card-actions">
+                                        <a class="btn btn-secondary btn-small"
+                                           href="https://link.springer.com/article/10.1007/s00170-020-06207-8"
+                                           rel="noreferrer" target="_blank">Read article</a>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- TEAM (always open) -->
+    <section class="spa-section" id="team">
+        <div class="wrap">
+            <button aria-controls="panel-team" aria-expanded="true" class="spa-toggle" data-spa-toggle="team"
+                    type="button">
+                <div class="spa-toggle-inner">
+                    <div><h2>The Team</h2>
+                        <p class="muted">Meet the OpenLattice team.</p></div>
+                    <span aria-hidden="true" class="spa-arrow">⌄</span>
+                </div>
+            </button>
+        </div>
+
+        <div aria-label="The Team" class="spa-content" id="panel-team" role="region">
+            <section class="section">
+                <div class="wrap">
+                    <div class="grid grid-2">
+                        <article class="card person">
+                            <div class="person-top">
+                                <img alt="Cemal Efe Gayir photo" class="avatar" src="images/profiles/photo_cemal.jpg"/>
+                                <div>
+                                    <h3 class="card-title">Cemal Efe Gayir</h3>
+                                    <p class="muted tiny">Software Developer</p>
+                                </div>
+                            </div>
+                            <p class="muted">
+                                Currently studying for a BA in Mechanical Enginnering at Koc University, he works as a
+                                software developer
+                                in OpenLattice. His contributions to published research relates to design for additive
+                                manufacturing,
+                                computer modeling of cellular structures, and topology optimization focusing on
+                                lattices.
+                            </p>
+                            <div class="pill-row">
+                                <span class="pill">Mechanical Eng.</span><span
+                                    class="pill">Additive Manufacturing</span><span class="pill">Lattices</span>
+                            </div>
+                        </article>
+
+                        <article class="card person">
+                            <div class="person-top">
+                                <img alt="Emin Emre Ozdilek photo" class="avatar" src="images/profiles/photo_emre.jpg"/>
+                                <div>
+                                    <h3 class="card-title">Emin Emre Ozdilek</h3>
+                                    <p class="muted tiny">Software Developer</p>
+                                </div>
+                            </div>
+                            <p class="muted">
+                                A dual graduate of Istanbul Technical University in Civil and Mechanical Engineering, he
+                                works as a
+                                software developer at OpenLattice. His interests center on computational engineering and
+                                advanced
+                                simulation, with a focus on topology optimization and metamaterials, particularly
+                                lattice and cellular
+                                structure design.
+                            </p>
+                            <div class="pill-row">
+                                <span class="pill">Computational Design</span><span
+                                    class="pill">Topology Optimization</span><span
+                                    class="pill">Engineering Software</span>
+                            </div>
+                            <div class="divider"></div>
+                            <p class="muted tiny">
+                                <a href="mailto:eminemreozdilek@gmail.com">eminemreozdilek@gmail.com</a><br/>
+                                Merkez, Samli St. No:32/71, 34310, Avcilar, Istanbul TR
+                            </p>
+                        </article>
+
+                        <article class="card person">
+                            <div class="person-top">
+                                <img alt="Mirhan Ozdemir, M.Sc. photo" class="avatar"
+                                     src="images/profiles/photo_mirhan.png"/>
+                                <div>
+                                    <h3 class="card-title">Mirhan Ozdemir, M.Sc.</h3>
+                                    <p class="muted tiny">Ph.D. Researcher</p>
+                                </div>
+                            </div>
+                            <p class="muted">
+                                Mechanical engineer who completed his M.Sc. in topology optimization of printed lattices
+                                at Ozyegin
+                                University in Turkey. He is currently pursuing a Ph.D. at the Karlsruhe Institute of
+                                Technology in
+                                Germany, focusing on developing novel design principles for Nanoarchitected
+                                metamaterials.
+                            </p>
+                            <div class="pill-row">
+                                <span class="pill">Metamaterials</span><span
+                                    class="pill">Topology Optimization</span><span class="pill">Design</span>
+                            </div>
+                        </article>
+
+                        <article class="card person">
+                            <div class="person-top">
+                                <img alt="Ugur Simsek, Ph.D. photo" class="avatar"
+                                     src="images/profiles/photo_ugur.jpg"/>
+                                <div>
+                                    <h3 class="card-title">Ugur Simsek, Ph.D.</h3>
+                                    <p class="muted tiny">Corresponding Author</p>
+                                </div>
+                            </div>
+                            <p class="muted">
+                                Engineering from Ozyegin University in Istanbul. With over 13 years of industrial
+                                experience, he
+                                specializes in stress analysis, life calculation, and additive manufacturing.
+                                Previously, he held
+                                positions at General Electric Aviation, TEI (TUSAS Engine Industries), and BEKO in
+                                Istanbul, Turkey.
+                                He has authored numerous articles on lattice structures in reputable journals and
+                                conferences, and he
+                                continues to focus on advancing additive manufacturing through multi-material/lattice
+                                topology
+                                optimization methods.
+                            </p>
+                            <div class="pill-row">
+                                <span class="pill">Additive Manufacturing</span><span
+                                    class="pill">Stress Analysis</span><span class="pill">HMTO</span>
+                            </div>
+                            <div class="divider"></div>
+                            <p class="muted tiny">
+                                <a href="mailto:ugur.simsek.16339@ozu.edu.tr">ugur.simsek.16339@ozu.edu.tr</a><br/>
+                                Ozyegin University, Cekmekoy Campus Nisantepe Mah. Orman Sok. No: 34794 Cekmekoy,
+                                Istanbul TR
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="wrap">
+                    <div class="section-head">
+                        <h2>Contributors</h2>
+                        <p class="muted">Additional contributors and collaborators.</p>
+                    </div>
+                    <div class="grid grid-2">
+                        <article class="card">
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Assoc. Prof.</span>
+                                    <a class="muted tiny" href="https://people.sabanciuniv.edu/gkiziltas/"
+                                       rel="noreferrer" target="_blank">More →</a>
+                                </div>
+                                <h3 class="card-title">Gullu Kiziltas Sendur</h3>
+                                <p class="muted">
+                                    Associate Professor at the Faculty of Engineering and Natural Sciences at Sabancı
+                                    University, Turkey.
+                                    Her current research interests are design and fabrication of complex engineering
+                                    systems such as
+                                    miniaturized mechanical, electromechanical and biomedical devices.
+                                </p>
+                            </div>
+                        </article>
+
+                        <article class="card">
+                            <div class="card-body">
+                                <div class="card-top">
+                                    <span class="badge">Assoc. Prof.</span>
+                                    <a class="muted tiny"
+                                       href="https://www.ozyegin.edu.tr/tr/akademik-kadro/polatsendur" rel="noreferrer"
+                                       target="_blank">More →</a>
+                                </div>
+                                <h3 class="card-title">Polat Sendur</h3>
+                                <p class="muted">
+                                    Associate Professor with expertise in dynamics, vibration, and acoustics. He
+                                    obtained his degrees from
+                                    Middle East Technical University and the University of Michigan. Following
+                                    postdoctoral research, he
+                                    worked in the automotive industry in the US before returning to Turkey. His career
+                                    includes roles at
+                                    Ford Otosan and research focused on areas such as multibody dynamics, vibration,
+                                    acoustics, and biomechanics.
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+
+    <!-- VERSIONS (always open) -->
+    <section class="spa-section" id="versions">
+        <div class="wrap">
+            <button aria-controls="panel-versions" aria-expanded="true" class="spa-toggle" data-spa-toggle="versions"
+                    type="button">
+                <div class="spa-toggle-inner">
+                    <div><h2>Versions</h2>
+                        <p class="muted">OpenLattice releases and download links.</p></div>
+                    <span aria-hidden="true" class="spa-arrow">⌄</span>
+                </div>
+            </button>
+        </div>
+
+        <div aria-label="Versions" class="spa-content" id="panel-versions" role="region">
+            <section class="section">
+                <div class="wrap narrow">
+                    <div class="callout">
+                        <div>
+                            <h2 style="margin:0">v1.0.0</h2>
+                            <p class="muted" style="margin-top:.4rem">Latest public release (as noted on the site
+                                footer).</p>
+                        </div>
+                        <a class="btn btn-primary"
+                           href="https://drive.google.com/drive/folders/1gREuPsOYKE9VTF8F9dK5JFAYSdkSBlb2?usp=sharing"
+                           rel="noreferrer" target="_blank">Download v1.0.0</a>
+                    </div>
+
+                    <h3 style="margin-top:1.6rem">What’s included</h3>
+                    <ul class="bullets">
+                        <li>TPMS &amp; Strut-Base Lattice generation</li>
+                        <li>Anisotropic homogenization</li>
+                        <li>Homogenization-based topology optimization (HMTO)</li>
+                        <li>Functionally Graded Reconstruction</li>
+                    </ul>
+
+                    <p class="muted tiny" style="margin-top:1.1rem">
+                        Disclaimer: The authors reserve all rights but do not guarantee that the code is free from
+                        errors.
+                        Furthermore, we shall not be liable in any event caused by the use of the program.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="wrap footer-grid">
+        <div class="footer-block">
+            <div class="brand footer-brand">
+                <img alt="OpenLattice logo" class="logo" data-fallback="mark" src="images/logo.png"/>
+            </div>
+            <p class="muted">A lattice design, homogenization, and optimization application.</p>
+            <div class="pill-row">
+                <span class="pill">TPMS</span>
+                <span class="pill">Homogenization</span>
+                <span class="pill">HMTO</span>
+            </div>
+        </div>
+
+        <div class="footer-block">
+            <h3>News</h3>
+            <ul class="list">
+                <li><span class="dot"></span> v1.0.0 is Released!</li>
+            </ul>
+        </div>
+
+        <div class="footer-block">
+            <h3>Corresponding Author</h3>
+            <p class="muted"><strong>Dr. Simsek, Ugur</strong></p>
+            <ul class="list">
+                <li><span class="dot"></span> Ann Arbor, MI, USA</li>
+                <li><span class="dot"></span> <a
+                        href="mailto:ugur.simsek.16339@ozu.edu.tr">ugur.simsek.16339@ozu.edu.tr</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="wrap footer-bottom">
+        <p class="muted">© 2026 All Rights Reserved. OpenLattice.</p>
+        <div class="footer-actions">
+            <a class="muted" href="https://drive.google.com/drive/folders/1gREuPsOYKE9VTF8F9dK5JFAYSdkSBlb2?usp=sharing"
+               rel="noreferrer" target="_blank">Download</a>
+            <span class="muted">·</span>
+            <a class="muted" href="#articles">Publications</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Gradient reset per section: copy the page gradient from html/body into CSS vars -->
+<script>
+    (() => {
+        const root = document.documentElement;
+
+        // Find the element that currently carries your gradient (body or html)
+        const candidates = [document.body, root];
+        let cs = null;
+        for (const el of candidates) {
+            const s = window.getComputedStyle(el);
+            if (s && s.backgroundImage && s.backgroundImage !== 'none') {
+                cs = s;
+                break;
+            }
+        }
+        if (!cs) return;
+
+        root.style.setProperty('--ol-section-bg-image', cs.backgroundImage);
+        root.style.setProperty('--ol-section-bg-color', cs.backgroundColor);
+        root.style.setProperty('--ol-section-bg-position', cs.backgroundPosition);
+        root.style.setProperty('--ol-section-bg-size', cs.backgroundSize);
+        root.style.setProperty('--ol-section-bg-repeat', cs.backgroundRepeat);
+
+
+        // Hide the global page gradient so the per-section gradient is the one you see
+        document.body.style.backgroundImage = 'none';
+        document.body.style.backgroundColor = 'transparent';
+        root.style.backgroundImage = 'none';
+        root.style.backgroundColor = 'transparent';
+        // Preserve any gradient animation you may have applied to body/html
+        if (cs.animationName && cs.animationName !== 'none') {
+            root.style.setProperty('--ol-section-bg-anim-name', cs.animationName);
+            root.style.setProperty('--ol-section-bg-anim-duration', cs.animationDuration);
+            root.style.setProperty('--ol-section-bg-anim-timing', cs.animationTimingFunction);
+            root.style.setProperty('--ol-section-bg-anim-iter', cs.animationIterationCount);
+            root.style.setProperty('--ol-section-bg-anim-dir', cs.animationDirection);
+            root.style.setProperty('--ol-section-bg-anim-fill', cs.animationFillMode);
+        }
+    })();
+</script>
+
+<!-- Only the Related Articles behavior script -->
+<script>
+    (() => {
+        const section = document.getElementById('articles');
+        if (!section) return;
+
+        const items = Array.from(section.querySelectorAll('#articleGrid .filter-item'));
+        const search = section.querySelector('#articleSearch');
+        const chips = Array.from(section.querySelectorAll('.filters .chip[data-year]'));
+
+        const pager = section.querySelector('#articlePager');
+        const prevBtn = section.querySelector('#articlePrev');
+        const nextBtn = section.querySelector('#articleNext');
+        const info = section.querySelector('#articlePagerInfo');
+
+        // store original order to keep your "time" order stable inside same year
+        items.forEach((el, i) => el.dataset.idx = String(i));
+
+        let activeYear = null;   // null => default carousel mode (2 items)
+        let pageIndex = 0;
+        const pageSize = 2;
+
+        const norm = (s) => (s || '').toString().toLowerCase().trim();
+
+        function setActiveChip(yearOrNull) {
+            activeYear = yearOrNull; // null | 'all' | '2024'...
+            chips.forEach(ch => ch.classList.toggle('is-active', ch.dataset.year === activeYear));
+        }
+
+        function getMatches() {
+            const q = norm(search?.value);
+
+            let filtered = items.filter(el => {
+                const text = norm(el.dataset.text);
+                if (q && !text.includes(q)) return false;
+
+                if (activeYear && activeYear !== 'all') {
+                    return (el.dataset.year || '') === activeYear;
+                }
+                return true;
+            });
+
+            // Newest year first, then keep original order (as "time order")
+            filtered.sort((a, b) => {
+                const ya = Number(a.dataset.year || 0);
+                const yb = Number(b.dataset.year || 0);
+                if (yb !== ya) return yb - ya;
+                return Number(a.dataset.idx || 0) - Number(b.dataset.idx || 0);
+            });
+
+            return filtered;
+        }
+
+        function showElements(list) {
+            items.forEach(el => (el.style.display = 'none'));
+            list.forEach(el => (el.style.display = ''));
+        }
+
+        function render() {
+            const matches = getMatches();
+            const total = matches.length;
+
+            // Mode A: user selected "All" or a year => show everything (no carousel)
+            if (activeYear) {
+                showElements(matches);
+                if (pager) pager.style.display = 'none';
+                return;
+            }
+
+            // Mode B: default (nothing selected) => show 2 items + arrows
+            const maxPage = Math.max(0, Math.ceil(total / pageSize) - 1);
+            pageIndex = Math.max(0, Math.min(pageIndex, maxPage));
+
+            const start = pageIndex * pageSize;
+            const page = matches.slice(start, start + pageSize);
+            showElements(page);
+
+            // pager UI
+            if (pager) pager.style.display = (total > pageSize) ? '' : 'none';
+            if (info) info.textContent = total
+                ? `${start + 1}–${Math.min(start + pageSize, total)} / ${total}`
+                : `0 / 0`;
+
+            if (prevBtn) prevBtn.disabled = (pageIndex === 0);
+            if (nextBtn) nextBtn.disabled = (start + pageSize >= total);
+        }
+
+        // Clicking a chip selects it; clicking the active chip again clears it (back to 2-item mode)
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const year = chip.dataset.year;
+                setActiveChip(activeYear === year ? null : year);
+                pageIndex = 0;
+                render();
+            });
+        });
+
+        // Search applies in all modes
+        search?.addEventListener('input', () => {
+            pageIndex = 0;
+            render();
+        });
+
+        prevBtn?.addEventListener('click', () => {
+            pageIndex = Math.max(0, pageIndex - 1);
+            render();
+        });
+
+        nextBtn?.addEventListener('click', () => {
+            pageIndex = pageIndex + 1;
+            render();
+        });
+
+        // Initial: nothing selected => 2 newest items (with arrows if more)
+        setActiveChip(null);
+        render();
+    })();
+</script>
+
+</body>
+</html>
